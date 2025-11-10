@@ -13,7 +13,9 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow: hidden; 
+            /* 📌 ALTERAÇÃO: Habilita rolagem vertical, se necessária */
+            overflow-y: auto; 
+            overflow-x: hidden; /* Mantém a rolagem horizontal desabilitada */
             
             background-image: url('plano_fundo.png'); 
             background-size: cover; 
@@ -30,6 +32,7 @@
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); 
             
+            /* Tamanho padrão para telas grandes e modo retrato */
             max-width: 90vw; 
             max-height: 90vh; 
             
@@ -41,7 +44,23 @@
             display: flex; 
             justify-content: center;
             align-items: center;
+            margin: 20px; /* Adiciona uma margem extra para evitar contato total com as bordas */
         }
+
+        /* 📌 NOVO CÓDIGO: Media Query para o modo paisagem (landscape) */
+        @media (orientation: landscape) and (max-height: 700px) {
+            .video-container {
+                /* Reduz a altura máxima para garantir que caiba na altura limitada do celular em paisagem */
+                max-height: 80vh; 
+                /* Se a largura não for um problema, mantemos 90vw. Se ainda cortar, use um valor fixo. */
+                /* Exemplo: max-width: 600px; */
+            }
+            video {
+                 /* Ajusta a altura máxima do vídeo para o novo max-height do container */
+                max-height: calc(80vh - 40px);
+            }
+        }
+        /* FIM DO NOVO CÓDIGO */
 
         /* 3. Estilização do Vídeo */
         video {
@@ -51,17 +70,16 @@
             max-height: calc(90vh - 40px); 
             border-radius: 5px;
             object-fit: contain;
-            cursor: pointer; /* Adiciona o cursor de 'mão' para indicar que é clicável */
+            cursor: pointer;
         }
         
-        /* 4. Estilização do Botão de Play */
+        /* 4. Estilização do Botão de Play (mantido inalterado) */
         #playButton {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 20; 
-            
             background-color: rgba(255, 255, 255, 0.8);
             border: none;
             border-radius: 50%; 
@@ -89,15 +107,6 @@
             border-color: transparent transparent transparent #000000;
             margin-left: 5px; 
         }
-        
-        /* Estilo para o ícone de Pause (dois traços) */
-        .pause-icon::after {
-            content: "||"; /* Caracteres de pause */
-            font-size: 24px;
-            color: #000;
-            line-height: 1; /* Alinhamento vertical */
-            margin-left: 0; /* Remove o ajuste do triângulo */
-        }
 
         .hidden {
             display: none !important;
@@ -118,38 +127,29 @@
             const video = document.getElementById('videoPlayer');
             const playButton = document.getElementById('playButton');
             
-            // 1. Estado Inicial: Pausado, botão visível
             video.pause();
             playButton.classList.remove('hidden');
 
-            // Função para alternar a reprodução e a visibilidade do botão
             function togglePlayPause() {
                 if (video.paused) {
-                    // Tenta tocar
                     video.play().then(() => {
                         playButton.classList.add('hidden');
                     }).catch(error => {
                         console.error("Erro ao tentar reproduzir o vídeo:", error);
                     });
                 } else {
-                    // Pausa
                     video.pause();
                     playButton.classList.remove('hidden');
                 }
             }
 
-            // 2. Ação: Clicar no botão para iniciar
             playButton.addEventListener('click', togglePlayPause);
-            
-            // 3. Ação: Clicar no vídeo para Pausar/Reproduzir
             video.addEventListener('click', togglePlayPause);
 
-            // 4. Garante que o botão seja escondido se o vídeo for reproduzido por outros meios
             video.addEventListener('playing', () => {
                 playButton.classList.add('hidden');
             });
             
-            // 5. Garante que o botão seja mostrado se o vídeo pausar
             video.addEventListener('pause', () => {
                 if (video.currentTime > 0 && !video.ended) {
                     playButton.classList.remove('hidden');
